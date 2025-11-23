@@ -1,3 +1,6 @@
+/**
+ * Renders the Database administration page.
+ */
 export default function DatabaseAdminPage() {
   return (
     <section className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
