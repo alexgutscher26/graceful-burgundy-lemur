@@ -1,3 +1,6 @@
+/**
+ * Renders the Audit Logs page with a header and description.
+ */
 export default function AuditLogsPage() {
   return (
     <section className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
