@@ -3,6 +3,18 @@ import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/threads/[id] - Get thread details with messages
+/**
+ * Handles the GET request to fetch a thread by its ID.
+ *
+ * This function retrieves the session from the request headers and checks for user authorization.
+ * It then fetches the thread details, including associated messages, creator information, and workspace members.
+ * If the thread is not found or the user does not have access, appropriate error responses are returned.
+ *
+ * @param request - The NextRequest object representing the incoming request.
+ * @param props - An object containing a Promise that resolves to an object with the thread ID.
+ * @returns A JSON response containing the thread details or an error message.
+ * @throws Error If there is an issue fetching the thread or if the user is unauthorized.
+ */
 export async function GET(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }
