@@ -86,6 +86,15 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/conversations - Create new conversation
+/**
+ * Handles the creation of a new conversation within a specified workspace.
+ *
+ * This function first retrieves the user's session to ensure they are authorized. It then checks if the provided workspace ID is valid and if the user is a member of the workspace. If all checks pass, it creates a new conversation and returns its details. In case of any errors, appropriate error messages are returned with corresponding status codes.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @returns A JSON response containing the success status and conversation details, or an error message with the appropriate status code.
+ * @throws Error If there is an issue during the conversation creation process.
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
