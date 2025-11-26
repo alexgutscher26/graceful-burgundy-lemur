@@ -4,6 +4,18 @@ import { convertThreadToWiki } from "@/lib/wiki-converter"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/threads/[id]/convert-to-wiki - Manual conversion to wiki page
+/**
+ * Handles the creation of a wiki page from a thread.
+ *
+ * This function first authenticates the user session and checks if the user has access to the specified thread.
+ * It verifies the existence of the thread and checks if a wiki page already exists for it. If not, it converts the thread content into a wiki page and creates it in the database.
+ * Finally, it updates the thread to mark it as documented and prepares a response with the created wiki page details.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @param params - An object containing the parameters, specifically the thread ID.
+ * @returns A JSON response indicating success and the created wiki page details.
+ * @throws Error If there is an issue during the process, such as unauthorized access or database errors.
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
