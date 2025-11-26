@@ -1,11 +1,13 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/wiki - Get all wiki pages for workspace
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

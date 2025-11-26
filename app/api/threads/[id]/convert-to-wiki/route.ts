@@ -1,15 +1,18 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { convertThreadToWiki } from "@/lib/wiki-converter"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/threads/[id]/convert-to-wiki - Manual conversion to wiki page
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -62,7 +65,17 @@ export async function POST(
     }
 
     // Convert thread content to wiki page
-    const wikiContent = await convertThreadToWiki(thread)
+    const threadForConversion = {
+      ...thread,
+      messages: thread.messages.map(msg => ({
+        ...msg,
+        creator: {
+          ...msg.creator,
+          name: msg.creator.name || "Unknown User"
+        }
+      }))
+    }
+    const wikiContent = await convertThreadToWiki(threadForConversion)
 
     // Create wiki page
     const wikiPage = await prisma.wikiPage.create({

@@ -1,14 +1,17 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // PUT /api/threads/[id]/settings - Update thread auto-convert settings
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -42,7 +45,7 @@ export async function PUT(
 
     // Only thread creator or workspace admins can update settings
     const member = thread.conversation.workspace.members[0]
-    if (thread.createdBy !== session.user.id && member.role === "MEMBER" && member.role === "VIEWER") {
+    if (thread.createdBy !== session.user.id && (member.role === "MEMBER" || member.role === "VIEWER")) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 

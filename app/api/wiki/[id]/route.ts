@@ -1,14 +1,17 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/wiki/[id] - Get specific wiki page
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -80,10 +83,13 @@ export async function GET(
 // PUT /api/wiki/[id] - Update wiki page content
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -122,8 +128,8 @@ export async function PUT(
     // Check permissions: only creator or workspace admin can edit
     const member = wikiPage.thread.conversation.workspace.members[0]
     const canEdit = wikiPage.createdBy === session.user.id ||
-                   member.role === "OWNER" ||
-                   member.role === "ADMIN"
+      member.role === "OWNER" ||
+      member.role === "ADMIN"
 
     if (!canEdit) {
       return NextResponse.json({ error: "Insufficient permissions to edit wiki page" }, { status: 403 })

@@ -1,11 +1,13 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/conversations - Get conversations for current workspace
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -36,7 +38,7 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            messages: true,
+
             threads: true,
           },
         },
@@ -65,7 +67,7 @@ export async function GET(request: NextRequest) {
       title: conv.title || "Untitled Conversation",
       createdAt: conv.createdAt,
       updatedAt: conv.updatedAt,
-      messageCount: conv._count.messages,
+      messageCount: 0,
       threadCount: conv._count.threads,
       lastActivity: conv.threads[0]?.messages[0]?.createdAt || conv.createdAt,
     }))
@@ -86,7 +88,9 @@ export async function GET(request: NextRequest) {
 // POST /api/conversations - Create new conversation
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
       include: {
         _count: {
           select: {
-            messages: true,
+
             threads: true,
           },
         },
@@ -132,7 +136,7 @@ export async function POST(request: NextRequest) {
         title: conversation.title || "Untitled Conversation",
         createdAt: conversation.createdAt,
         updatedAt: conversation.updatedAt,
-        messageCount: conversation._count.messages,
+        messageCount: 0,
         threadCount: conversation._count.threads,
       },
     })

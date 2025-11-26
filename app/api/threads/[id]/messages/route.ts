@@ -1,20 +1,23 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/threads/[id]/messages - Send message to thread
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
-    const session = await auth()
+    const session = await auth.api.getSession({
+      headers: request.headers
+    })
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { content, contentType = "TEXT", replyToId } = body
+    const { content, contentType, replyToId } = body
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: "Message content is required" }, { status: 400 })
@@ -44,14 +47,14 @@ export async function POST(
       return NextResponse.json({ error: "Thread not found or access denied" }, { status: 404 })
     }
 
-    // If replyToId is provided, verify it exists and belongs to the same thread
+    // If replyToId is provided, verify it exists in the same thread
     if (replyToId) {
       const replyToMessage = await prisma.message.findUnique({
         where: { id: replyToId },
       })
 
       if (!replyToMessage || replyToMessage.threadId !== params.id) {
-        return NextResponse.json({ error: "Invalid reply to message" }, { status: 400 })
+        return NextResponse.json({ error: "Invalid reply target" }, { status: 400 })
       }
     }
 
@@ -59,9 +62,9 @@ export async function POST(
       data: {
         threadId: params.id,
         content: content.trim(),
-        contentType,
-        createdBy: session.user.id,
+        contentType: contentType || "TEXT",
         replyToId: replyToId || null,
+        createdBy: session.user.id,
       },
       include: {
         creator: {
@@ -85,14 +88,11 @@ export async function POST(
       },
     })
 
-    // Update the thread's updatedAt timestamp
+    // Update thread's updatedAt timestamp
     await prisma.thread.update({
       where: { id: params.id },
       data: { updatedAt: new Date() },
     })
-
-    // TODO: Emit real-time event for WebSocket
-    // WebSocket emission would happen here
 
     return NextResponse.json({
       success: true,
@@ -102,7 +102,6 @@ export async function POST(
         contentType: message.contentType,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
-        editedAt: message.editedAt,
         replyToId: message.replyToId,
         replyTo: message.replyTo ? {
           id: message.replyTo.id,

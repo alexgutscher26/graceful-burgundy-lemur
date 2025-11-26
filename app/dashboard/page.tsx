@@ -1,9 +1,12 @@
 import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { headers } from "next/headers"
+import prisma from "@/lib/prisma"
 import { ConversationDashboard } from "@/components/conversations/ConversationDashboard"
 
 async function getWorkspaceData() {
-  const session = await auth()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   if (!session?.user?.id) {
     return null
   }
@@ -38,7 +41,7 @@ async function getWorkspaceData() {
     include: {
       _count: {
         select: {
-          messages: true,
+
           threads: true,
         },
       },
@@ -54,7 +57,7 @@ async function getWorkspaceData() {
       include: {
         _count: {
           select: {
-            messages: true,
+
             threads: true,
           },
         },
@@ -70,7 +73,7 @@ async function getWorkspaceData() {
       title: conversation.title || "General Discussion",
       createdAt: conversation.createdAt.toISOString(),
       updatedAt: conversation.updatedAt.toISOString(),
-      messageCount: conversation._count.messages,
+      messageCount: 0,
       threadCount: conversation._count.threads,
       lastActivity: conversation.updatedAt.toISOString(),
     },

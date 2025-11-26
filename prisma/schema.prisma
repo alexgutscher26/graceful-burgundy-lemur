@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -187,9 +186,7 @@ model Conversation {
 
   // Relations
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  messages    Message[]
   threads     Thread[]
-  wikiPages   WikiPage[]
 
   @@index([workspaceId])
   @@map("conversation")
