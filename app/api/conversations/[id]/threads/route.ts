@@ -3,6 +3,21 @@ import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/conversations/[id]/threads - Get threads within a conversation
+/**
+ * Handles the GET request to fetch threads for a specific conversation.
+ *
+ * This function retrieves the session from the request headers and checks for user authorization.
+ * It then validates the existence of the conversation and the user's access to it.
+ * Based on search parameters, it constructs a query to fetch threads, formats the results,
+ * and returns them in a JSON response. If any errors occur during the process,
+ * it logs the error and returns a failure response.
+ *
+ * @param request - The NextRequest object containing the request details.
+ * @param props - An object containing parameters for the request.
+ * @param props.params - A promise that resolves to an object with the conversation ID.
+ * @returns A JSON response containing the success status and the formatted threads.
+ * @throws Error If there is an issue fetching threads or if the user is unauthorized.
+ */
 export async function GET(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }
@@ -128,6 +143,16 @@ export async function GET(
 }
 
 // POST /api/conversations/[id]/threads - Create new thread in conversation
+/**
+ * Handles the creation of a new thread in a conversation.
+ *
+ * This function first retrieves the session to ensure the user is authenticated. It then validates the input data, including the thread title and optional parent thread ID. The function checks for the existence of the conversation and verifies user access. If all validations pass, it creates a new thread and returns the thread details. In case of errors, appropriate responses are returned based on the failure point.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @param props - An object containing parameters, specifically a Promise that resolves to an object with an id string.
+ * @returns A JSON response containing the success status and the created thread details.
+ * @throws Error If there is an issue during thread creation or validation.
+ */
 export async function POST(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }
