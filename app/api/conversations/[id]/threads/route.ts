@@ -3,6 +3,18 @@ import { prisma } from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/conversations/[id]/threads - Get threads within a conversation
+/**
+ * Fetch threads for a specific conversation based on user access and search parameters.
+ *
+ * The function first authenticates the user and checks if they have access to the specified conversation.
+ * It then constructs a query to retrieve threads, applying filters based on search parameters and pagination.
+ * Finally, it formats the retrieved threads and returns them in a JSON response.
+ *
+ * @param request - The NextRequest object containing the request details.
+ * @param params - An object containing route parameters, specifically the conversation ID.
+ * @returns A JSON response containing the success status and the formatted threads.
+ * @throws Error If there is an issue fetching the threads or if the user is unauthorized.
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -125,6 +137,16 @@ export async function GET(
 }
 
 // POST /api/conversations/[id]/threads - Create new thread in conversation
+/**
+ * Handles the creation of a new thread in a conversation.
+ *
+ * This function first authenticates the user and checks for the required parameters. It verifies the existence of the conversation and the user's access to it. If a parentId is provided, it ensures that the parent thread exists and belongs to the same conversation. Finally, it creates the new thread and returns its details.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @param params - An object containing route parameters, specifically the conversation id.
+ * @returns A JSON response containing the success status and details of the created thread.
+ * @throws Error If an error occurs during the thread creation process.
+ */
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
