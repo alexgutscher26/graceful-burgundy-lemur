@@ -3,6 +3,18 @@ import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // POST /api/threads/[id]/messages - Send message to thread
+/**
+ * Handles the creation of a new message in a specified thread.
+ *
+ * This function first verifies the user's session and checks for the existence of the thread and the user's access to it.
+ * It then validates the message content and the reply target if provided. After creating the message, it updates the thread's timestamp
+ * and returns the newly created message details. If any validation fails, appropriate error responses are returned.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @param props - An object containing a promise that resolves to the parameters, including the thread ID.
+ * @returns A JSON response containing the success status and the created message details.
+ * @throws Error If there is an issue during message creation or validation.
+ */
 export async function POST(
   request: NextRequest,
   props: { params: Promise<{ id: string }> }
