@@ -3,6 +3,15 @@ import prisma from "@/lib/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 // GET /api/conversations - Get conversations for current workspace
+/**
+ * Fetch conversations for a specific workspace.
+ *
+ * This function retrieves the user's session and checks for authorization. It validates the presence of a workspace ID and verifies the user's access to that workspace. If authorized, it fetches the conversations associated with the workspace, including message and thread counts, and formats the results before returning them. In case of errors, appropriate responses are returned based on the failure point.
+ *
+ * @param request - The NextRequest object containing the request details.
+ * @returns A JSON response containing the success status and the list of formatted conversations.
+ * @throws Error If an error occurs during the fetching process.
+ */
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -86,6 +95,17 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/conversations - Create new conversation
+/**
+ * Handles the creation of a new conversation within a specified workspace.
+ *
+ * This function first authenticates the user and checks for their access to the specified workspace.
+ * It then validates the request body for the required workspaceId and creates a new conversation
+ * if all conditions are met. In case of any errors, appropriate JSON responses are returned.
+ *
+ * @param request - The NextRequest object containing the request data.
+ * @returns A JSON response indicating success or failure, along with the created conversation details if successful.
+ * @throws Error If an error occurs during the conversation creation process.
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
